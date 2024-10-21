@@ -68,7 +68,7 @@ OSS_ENDPOINT = <Your access endpoint>
 
 ```
 
-## for Django < 5.1
+## for Django >= 5.1
 
 -   Add `'django_oss_storage'` to your `INSTALLED_APPS` setting
 -   Set your `STORAGE` setting as below.

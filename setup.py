@@ -26,6 +26,7 @@ setup(
     version=version,
     description='Django Aliyun OSS (Object Storage Service) storage v2, compatible with Django 5.1+',
     long_description=readme,
+    long_description_content_type="text/markdown",
     packages=['django_oss_storage'],
     install_requires=['django>=1.10',
                       'oss2>=2.3.3'],
