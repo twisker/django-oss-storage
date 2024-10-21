@@ -14,10 +14,18 @@ from django.core.files import File
 from django.core.exceptions import ImproperlyConfigured, SuspiciousOperation
 from django.core.files.storage import Storage
 from django.conf import settings
-from django.utils.encoding import force_text, force_bytes
 from django.utils.deconstruct import deconstructible
-from django.utils.timezone import utc
 from tempfile import SpooledTemporaryFile
+
+try:
+    from django.utils.encoding import force_text
+except ImportError:
+    from django.utils.encoding import force_str as force_text
+try:
+    from django.utils.timezone import utc
+except ImportError:
+    from datetime import timezone
+    utc = timezone.utc
 
 import oss2.utils
 import oss2.exceptions
@@ -58,17 +66,17 @@ class OssStorage(Storage):
     Aliyun OSS Storage
     """
 
-    def __init__(self, access_key_id=None, access_key_secret=None, end_point=None, bucket_name=None, expire_time=None):
+    def __init__(self, access_key_id=None, access_key_secret=None, endpoint=None, bucket_name=None, expire_time=None):
         self.access_key_id = access_key_id if access_key_id else _get_config('OSS_ACCESS_KEY_ID')
         self.access_key_secret = access_key_secret if access_key_secret else _get_config('OSS_ACCESS_KEY_SECRET')
-        self.end_point = _normalize_endpoint(end_point if end_point else _get_config('OSS_ENDPOINT'))
+        self.endpoint = _normalize_endpoint(endpoint if endpoint else _get_config('OSS_ENDPOINT'))
         self.bucket_name = bucket_name if bucket_name else _get_config('OSS_BUCKET_NAME')
         self.expire_time = expire_time if expire_time else int(
             _get_config('OSS_EXPIRE_TIME', default=60 * 60 * 24 * 30))
 
         self.auth = Auth(self.access_key_id, self.access_key_secret)
-        self.service = Service(self.auth, self.end_point)
-        self.bucket = Bucket(self.auth, self.end_point, self.bucket_name)
+        self.service = Service(self.auth, self.endpoint)
+        self.bucket = Bucket(self.auth, self.endpoint, self.bucket_name)
 
         # try to get bucket acl to check bucket exist or not
         try:
@@ -259,17 +267,17 @@ class OssStorage(Storage):
 
 
 class OssMediaStorage(OssStorage):
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.location = OssStorage.get_relative_location(settings.MEDIA_ROOT)
         logger().debug("locatin: %s", self.location)
-        super(OssMediaStorage, self).__init__()
+        super(OssMediaStorage, self).__init__(**kwargs)
 
 
 class OssStaticStorage(OssStorage):
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.location = OssStorage.get_relative_location(settings.STATIC_ROOT)
         logger().info("locatin: %s", self.location)
-        super(OssStaticStorage, self).__init__()
+        super(OssStaticStorage, self).__init__(**kwargs)
 
 
 class OssFile(File):

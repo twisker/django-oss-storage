@@ -18,13 +18,13 @@ if not version:
     raise RuntimeError('Cannot find version information')
 
 
-with open('README.rst', 'rb') as f:
+with open('README.md', 'rb') as f:
     readme = f.read().decode('utf-8')
 
 setup(
-    name='django-oss-storage',
+    name='django-oss-storage-v2',
     version=version,
-    description='Django Aliyun OSS (Object Storage Service) storage',
+    description='Django Aliyun OSS (Object Storage Service) storage v2, compatible with Django 5.1+',
     long_description=readme,
     packages=['django_oss_storage'],
     install_requires=['django>=1.10',
